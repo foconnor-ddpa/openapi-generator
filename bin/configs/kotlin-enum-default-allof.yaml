@@ -1,0 +1,8 @@
+generatorName: kotlin
+outputDir: samples/client/petstore/kotlin-enum-default-allof
+inputSpec: modules/openapi-generator/src/test/resources/3_0/kotlin/issue15144-enum-default-allof.yaml
+templateDir: modules/openapi-generator/src/main/resources/kotlin-client
+additionalProperties:
+  artifactId: kotlin-enum-default-allof
+globalProperties:
+  models: ""
