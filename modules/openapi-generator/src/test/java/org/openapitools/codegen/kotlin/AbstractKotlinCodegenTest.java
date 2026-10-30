@@ -401,6 +401,28 @@ public class AbstractKotlinCodegenTest {
         Assert.assertEquals(((HashMap) ((ArrayList) cp2.getAllowableValues().get("enumVars")).get(0)).get("name"), "nonkeywordvalue");
     }
 
+    @Test(description = "Issue #15144: allOf enum defaults use enum constants, not string literals")
+    public void testAllOfEnumPropertyWithDefaultValue() {
+        final OpenAPI openAPI = TestUtils.parseFlattenSpec("src/test/resources/3_0/kotlin/issue15144-enum-default-allof.yaml");
+        codegen.setOpenAPI(openAPI);
+
+        Schema schema = openAPI.getComponents().getSchemas().get("ObjectUsingEnum");
+        CodegenModel model = codegen.fromModel("ObjectUsingEnum", schema);
+        codegen.postProcessModels(createCodegenModelWrapper(model));
+
+        CodegenProperty criteria = model.vars.get(0);
+        assertTrue(criteria.isEnumRef);
+        assertEquals(criteria.dataType, "JoinCriteria");
+        assertEquals(criteria.defaultValue, "JoinCriteria.AT_LEAST");
+
+        CodegenProperty criteriaWithoutType = model.vars.get(1);
+        assertTrue(criteriaWithoutType.isEnumRef);
+        assertEquals(criteriaWithoutType.dataType, "JoinCriteria");
+        assertEquals(criteriaWithoutType.defaultValue, "JoinCriteria.ALL");
+
+        assertEquals(model.vars.get(2).defaultValue, "\"AT_LEAST\"");
+    }
+
     @Test(description = "Issue #3804")
     public void testEnumPropertyDefaultWithCapitalization() {
         final OpenAPI openAPI = TestUtils.parseFlattenSpec("src/test/resources/3_0/kotlin/issue3804-enum-enum-capitalization.yaml");

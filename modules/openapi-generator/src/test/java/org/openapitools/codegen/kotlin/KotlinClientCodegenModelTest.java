@@ -52,6 +52,31 @@ public class KotlinClientCodegenModelTest {
 
     private static final String KOTLIN_GENERATOR = "kotlin";
 
+    @DataProvider
+    public Object[][] allOfEnumDefaultGenerators() {
+        return new Object[][]{{"kotlin"}, {"kotlin-spring"}, {"kotlin-server"}};
+    }
+
+    @Test(dataProvider = "allOfEnumDefaultGenerators")
+    public void testAllOfEnumDefaults(String generatorName) throws IOException {
+        File output = Files.createTempDirectory("kotlin-enum-default-allof").toFile();
+        output.deleteOnExit();
+
+        CodegenConfigurator configurator = new CodegenConfigurator()
+                .setGeneratorName(generatorName)
+                .setModelPackage("model")
+                .setGlobalProperties(Map.of("models", ""))
+                .setInputSpec("src/test/resources/3_0/kotlin/issue15144-enum-default-allof.yaml")
+                .setOutputDir(output.getAbsolutePath());
+        new DefaultGenerator().opts(configurator.toClientOptInput()).generate();
+
+        Path model = output.toPath().resolve("src/main/kotlin/model/ObjectUsingEnum.kt");
+        TestUtils.assertFileContains(model,
+                "criteria: JoinCriteria? = JoinCriteria.AT_LEAST",
+                "criteriaWithoutType: JoinCriteria? = JoinCriteria.ALL",
+                "plainString: kotlin.String? = \"AT_LEAST\"");
+    }
+
     private Schema<?> getArrayTestSchema() {
         return new ObjectSchema()
                 .description("a sample model")

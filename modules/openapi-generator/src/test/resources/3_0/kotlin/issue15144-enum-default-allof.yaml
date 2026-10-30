@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  title: Enum default with allOf
+  version: "1.0"
+paths: {}
+components:
+  schemas:
+    JoinCriteria:
+      type: string
+      enum:
+        - ALL
+        - AT_LEAST
+    ObjectUsingEnum:
+      type: object
+      properties:
+        criteria:
+          description: The Join satisfaction criteria
+          default: AT_LEAST
+          type: string
+          allOf:
+            - $ref: '#/components/schemas/JoinCriteria'
+        criteriaWithoutType:
+          default: ALL
+          allOf:
+            - $ref: '#/components/schemas/JoinCriteria'
+        plainString:
+          type: string
+          default: AT_LEAST

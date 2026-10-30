@@ -1249,6 +1249,13 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
     @Override
     public String toDefaultValue(CodegenProperty cp, Schema schema) {
         schema = ModelUtils.getReferencedSchema(this.openAPI, schema);
+        if (cp.isEnumRef && schema.getDefault() != null && ModelUtils.isAllOf(schema) && schema.getAllOf().size() == 1) {
+            Schema<?> enumSchema = ModelUtils.getReferencedSchema(this.openAPI, (Schema) schema.getAllOf().get(0));
+            if (ModelUtils.isStringSchema(enumSchema)) {
+                // Keep the wrapper's default unquoted for enum conversion in postProcessModels.
+                return schema.getDefault().toString();
+            }
+        }
         if (ModelUtils.isBooleanSchema(schema)) {
             if (schema.getDefault() != null) {
                 return schema.getDefault().toString();
